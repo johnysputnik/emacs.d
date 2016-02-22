@@ -1,7 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; org mode stuff
 
-
 (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\)$" . org-mode))
 (require 'org)
 (add-to-list 'org-modules 'org-mac-iCal)
@@ -18,9 +17,8 @@
 ;; org-mode agenda files
 
 (setq org-agenda-files (quote (
-               "~/dev/org/cmgroup"
-               "~/dev/org/datazone"
-               "~/dev/org/jsolutions")))
+                               "~/dev/org/jsolutions"
+                               "~/dev/org/blog")))
 
 (setq org-default-notes-file (concat "~/dev/org/notes.org"))
 
@@ -67,7 +65,7 @@
 (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
 
 ;; turn on spell checking for org mode
-;; (add-hook 'org-mode-hook 'turn-on-flyspell)
+(add-hook 'org-mode-hook 'turn-on-flyspell)
 
 ;; fontify code blocks
 (setq org-src-fontify-natively t)
@@ -77,6 +75,8 @@
 (add-to-list 'org-latex-packages-alist '("" "minted"))
 (setq org-latex-pdf-process
       '("latexmk -pdflatex='xelatex -shell-escape -interaction nonstopmode' -pdf %f"))
+
+(setq org-latex-create-formula-image-program 'imagemagick)
 
 (setq org-pretty-entities nil)
 
@@ -120,6 +120,18 @@
 (global-set-key (kbd "C-c C-x C v")
                 'do-org-show-all-inline-images)
 
+;; show and hide code blocks
+(defvar org-blocks-hidden nil)
 
+(defun org-toggle-blocks ()
+  (interactive)
+  (if org-blocks-hidden
+      (org-show-block-all)
+    (org-hide-block-all))
+  (setq-local org-blocks-hidden (not org-blocks-hidden)))
+
+(add-hook 'org-mode-hook 'org-toggle-blocks)
+
+(define-key org-mode-map (kbd "C-c t") 'org-toggle-blocks)
 
 (provide 'setup-org)

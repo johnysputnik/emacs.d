@@ -1,4 +1,5 @@
 (require 'mu4e)
+(require 'sauron)
 
 ;; default
 ;; (setq mu4e-maildir "~/.mail/jsolutions")
@@ -76,5 +77,32 @@
 (setq mu4e-hide-index-messages t)
 
 (add-hook 'mu4e-compose-mode-hook 'flyspell-mode)
+
+(add-to-list 'mu4e-header-info-custom
+             '(:recipnum .
+                         ( :name "Number of recipients"  ;; long name, as seen in the message-view
+                                 :shortname "Recip#"           ;; short name, as seen in the headers view
+                                 :help "Number of recipients for this message" ;; tooltip
+                                 :function
+                                 (lambda (msg)
+                                   (format "%d"
+                                           (+ (length (mu4e-message-field msg :to))
+                                              (length (mu4e-message-field msg :cc))))))))
+
+(add-to-list 'mu4e-marks
+             '(tag
+               :char       "g"
+               :prompt     "gtag"
+               :ask-target (lambda () (read-string "What tag do you want to add?"))
+               :action      (lambda (docid msg target)
+                              (mu4e-action-retag-message msg (concat "+" target)))))
+
+(setq mu4e-headers-fields
+      '((:human-date . 10)
+        (:flags . 6)
+        (:tags . 10)
+        (:recipnum . 5)
+        (:from . 22)
+        (:subject . nil)))
 
 (provide 'setup-mu4e)

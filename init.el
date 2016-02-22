@@ -1,10 +1,10 @@
 
 ;;; paths
 
-(setenv "PATH" (concat (getenv "PATH") ":~/bin:/usr/local/bin:/usr/texbin"))
+(setenv "PATH" (concat ":~/bin:/usr/local/bin:/Library/TeX/texbin" (getenv "PATH")))
 (setq exec-path (append exec-path '("~/bin")))
 (setq exec-path (append exec-path '("/usr/local/bin")))
-(setq exec-path (append exec-path '("/usr/texbin")))
+(setq exec-path (append exec-path '("/Library/TeX/texbin")))
 
 ;;; packages
 
@@ -19,8 +19,11 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (defconst demo-packages
-  '(magit
+  '(auctex
+    magit
     flycheck
+    flycheck-clojure
+    flycheck-pos-tip
     anzu
     sauron
     mu4e-maildirs-extension
@@ -53,6 +56,7 @@
     helm-gtags
     helm-projectile
     helm-swoop
+    htmlize
     ;; function-args
     clean-aindent-mode
     comment-dwim-2
@@ -64,6 +68,7 @@
     projectile
     volatile-highlights
     undo-tree
+    twittering-mode
     zygospore))
 
 (defun install-packages ()
@@ -82,6 +87,8 @@
 (setq helm-gtags-prefix-key "\C-cg")
 
 (add-to-list 'load-path "~/.emacs.d/custom")
+(add-to-list 'load-path "~/dev/org/blog/elisp")
+
 
 (require 'setup-helm)
 (require 'setup-helm-gtags)
@@ -92,6 +99,8 @@
 (require 'setup-mu4e)
 (require 'setup-org)
 (require 'setup-slime)
+
+(require 'jsolutions-web)
 
 (windmove-default-keybindings)
 
@@ -234,7 +243,7 @@
  '(cua-mode t nil (cua-base))
  '(custom-safe-themes
    (quote
-    ("3cd28471e80be3bd2657ca3f03fbb2884ab669662271794360866ab60b6cb6e6" "74278d14b7d5cf691c4d846a4bbf6e62d32104986f104c1e61f718f9669ec04b" "c7fb35ba0e1e7f2e4b48ba1508ce5ee309192c6e5e671dba296dc259844426e6" "3625c04fa4b8a802e96922d2db3f48c9cb2f93526e1dc24ba0b400e4ee4ccd8a" "cedd3b4295ac0a41ef48376e16b4745c25fa8e7b4f706173083f16d5792bb379" default)))
+    ("8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "3cd28471e80be3bd2657ca3f03fbb2884ab669662271794360866ab60b6cb6e6" "74278d14b7d5cf691c4d846a4bbf6e62d32104986f104c1e61f718f9669ec04b" "c7fb35ba0e1e7f2e4b48ba1508ce5ee309192c6e5e671dba296dc259844426e6" "3625c04fa4b8a802e96922d2db3f48c9cb2f93526e1dc24ba0b400e4ee4ccd8a" "cedd3b4295ac0a41ef48376e16b4745c25fa8e7b4f706173083f16d5792bb379" default)))
  '(tool-bar-mode nil))
 
 ;;; THEME
@@ -247,7 +256,8 @@
 (require 'color-theme)
 (color-theme-initialize)
 (require 'color-theme-solarized)
-(color-theme-solarized)
+(customize-set-variable 'frame-background-mode 'dark)
+(load-theme 'solarized t)
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -303,8 +313,23 @@
 
 ;; Sauron
 
-(setq sauron-modules '(sauron-erc sauron-org sauron-notifications sauron-twittering))
+(setq sauron-modules '(sauron-erc sauron-org sauron-twittering))
+(setq sauron-watch-patterns
+      '("pdf" "page" "text"))
+
 
 ;; flycheck
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
+
+;; ERC
+
+(setq erc-hide-list '("JOIN" "PART" "QUIT"))
+(setq erc-keywords '("\\bpdf\\b"))
+
+
+
+
+(eval-after-load 'flycheck '(flycheck-clojure-setup))
+(eval-after-load 'flycheck
+  '(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
